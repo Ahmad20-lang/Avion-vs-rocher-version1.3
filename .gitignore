@@ -1,1 +1,35 @@
-node_modules
+# Ignorer les fichiers de dépendances
+node_modules/
+
+# Ignorer les fichiers de configuration locaux
+.env
+
+# Ignorer les fichiers de log et de cache
+*.log
+logs/
+tmp/
+cache/
+
+# Ignorer les fichiers de base de données locales
+*.sqlite
+*.db
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers de configuration d'IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignorer les fichiers de build et de distribution
+dist/
+build/
+*.pyc
+__pycache__/
+
+# Ignorer les fichiers de replay
+replays/
+*.webm
