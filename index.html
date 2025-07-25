@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Jeu Avion - Entraînement & Multijoueur</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0f0f0; /* Couleur de fond */
+        background-image: url('https://img.freepik.com/photos-premium/avion-chasse-volant-dans-ciel_812426-98022.jpg'); /* Remplacez par l'URL de votre icône */
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+      }
+
+      .content {
+        text-align: center;
+      }
+
+      .content h1 {
+        color: #333;
+      }
+      /*******************************************************/
+      body {
+        margin: 0;
+        background: black;
+        color: white;
+        font-family: 'Roboto', sans-serif;
+        overflow: hidden;
+      }
+      canvas {
+        display: none;
+        border: 2px solid white;
+        background: #222;
+      }
+      #startScreen,
+      #rulesScreen,
+      #menu,
+      #gameOverScreen,
+      #loadingScreen,
+      #playerNameScreen,
+      #modeSelectionScreen,
+      #trainingScreen,
+      #shopScreen,
+      #modeSelectionDeviceScreen,
+      #ageSelectionScreen,
+      #replaysScreen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.9);
+      }
+      button {
+        padding: 10px 20px;
+        margin: 10px;
+        font-size: 18px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .mode-btn,
+      .level-btn,
+      .shop-item {
+        width: 150px;
+        margin: 5px;
+        font-size: 16px;
+      }
+      #hud {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 18px;
+      }
+      #loadingBar {
+        width: 300px;
+        height: 20px;
+        border: 1px solid white;
+        margin: 20px;
+        background: #333;
+      }
+      #loadingProgress {
+        height: 100%;
+        width: 0%;
+        background: #007bff;
+      }
+      input {
+        padding: 10px;
+        margin: 10px;
+        font-size: 16px;
+        width: 200px;
+      }
+      .team-container {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        margin: 20px 0;
+      }
+      .team {
+        padding: 15px;
+        border-radius: 5px;
+        width: 45%;
+        text-align: center;
+      }
+      .team1 {
+        background: rgba(0, 123, 255, 0.2);
+        border: 1px solid #007bff;
+      }
+      .team2 {
+        background: rgba(255, 0, 0, 0.2);
+        border: 1px solid #ff0000;
+      }
+      .player-item {
+        margin: 5px;
+        padding: 5px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      #serverStatus {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+      #connectionInfo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+      }
+      #gameInfo {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 5px 15px;
+        border-radius: 5px;
+      }
+      .health-bar {
+        height: 5px;
+        margin-top: 5px;
+        border-radius: 2px;
+      }
+      .health-bar-green {
+        background: #0f0;
+      }
+      .health-bar-red {
+        background: #f00;
+      }
+      .wifi-icon {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin-right: 5px;
+        vertical-align: middle;
+        position: relative;
+      }
+      .wifi-icon::before {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        border-style: solid;
+        border-color: currentColor;
+        border-width: 1px;
+      }
+      .wifi-0 .wifi-icon::before {
+        width: 6px;
+        height: 6px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f00;
+        border: none;
+      }
+      .wifi-1 .wifi-icon::before {
+        width: 12px;
+        height: 12px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-color: #ff0;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        border-right-color: transparent;
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      .wifi-2 .wifi-icon::before,
+      .wifi-3 .wifi-icon::before {
+        width: 18px;
+        height: 18px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-color: #0f0;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        border-right-color: transparent;
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      .wifi-3 .wifi-icon::after {
+        content: '';
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 1px solid #0f0;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        border-right-color: transparent;
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      .wifi-status {
+        display: flex;
+        align-items: center;
+      }
+      #coinsDisplay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 5px 15px;
+        border-radius: 5px;
+      }
+      .shop-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        margin: 10px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .shop-item img {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 10px;
+      }
+      .shop-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 800px;
+      }
+      .owned {
+        border-color: gold;
+        background: rgba(255, 215, 0, 0.1);
+      }
+      .equipped {
+        border-color: #0f0;
+        background: rgba(0, 255, 0, 0.1);
+      }
+      .return-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .return-btn .wifi-icon {
+        width: 20px;
+        height: 20px;
+        background-image: url('https://cdn-icons-png.flaticon.com/512/725/725643.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-right: 5px;
+      }
+      #gameOverIcon {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 20px;
+      }
+      /* Styles pour le système de replay */
+      #replayContainer {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 1000;
+      }
+
+      #replayVideo {
+        width: 800px;
+        height: 600px;
+      }
+
+      .replay-controls {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .mobile-controls {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .control-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid white;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #deviceWarning {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 1000;
+        text-align: center;
+      }
+
+      #ageSlider {
+        width: 80%;
+        margin: 20px 0;
+      }
+
+      #replaysScreen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.9);
+      }
+
+      .replay-item {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      #stickersPanel {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 200px;
+      }
+
+      .sticker {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <source src="votre_chanson.mp3" type="audio/mpeg" />
+    <div id="startScreen">
+      <h1>Bienvenue au Jeu Avion</h1>
+      <button onclick="commencer()">Commencer</button>
+    </div>
+
+    <div id="modeSelectionDeviceScreen" style="display: none">
+      <h1>Choisissez votre mode de contrôle</h1>
+      <button onclick="choisirModeOrdinateur()">Mode Ordinateur</button>
+      <button onclick="choisirModeTelephone()">Mode Téléphone</button>
+    </div>
+
+    <div id="ageSelectionScreen" style="display: none">
+      <h1>Choisissez votre âge</h1>
+      <input type="range" id="ageSlider" min="6" max="20" value="10" />
+      <p>Âge: <span id="ageValue">10</span> ans</p>
+      <button onclick="validerAge()">Valider</button>
+    </div>
+
+    <div id="rulesScreen" style="display: none">
+      <h1>Règles du Jeu</h1>
+      <div>
+        <p>
+          1. Mode Entraînement:<br />
+          - Affrontez des bots de différents niveaux<br />
+          - Facile: Mouvements lents, tir imprécis<br />
+          - Expert: Mouvements intelligents, tir précis<br /><br />
+
+          2. Mode Multijoueur:<br />
+          - Jouez en équipe contre d'autres joueurs<br />
+          - Si personne n'est connecté, vous affronterez des bots experts<br />
+          - Chaque joueur a 100 points de vie<br /><br />
+
+          3. Boutique:<br />
+          - Gagnez des pièces en jouant<br />
+          - Achetez des skins et des powerups<br /><br />
+
+          CONTROLES:<br />
+          Flèches gauche/droite: Se déplacer<br />
+          Espace: Tirer<br />
+          M: Menu pause<br /><br />
+
+          BUT DU JEU:<br />
+          Éliminer tous les joueurs de l'équipe adverse!
+        </p>
+      </div>
+      <button onclick="compris()">Compris</button>
+    </div>
+
+    <div id="menu" style="display: none">
+      <h1>Menu Principal</h1>
+      <button onclick="afficherTraining()">S'entraîner</button>
+      <button onclick="jouerEnLigne()">Jouer en ligne</button>
+      <button onclick="afficherBoutique()">Boutique</button>
+      <button onclick="afficherReplays()">Replays sauvegardés</button>
+      <button onclick="supprimerInformations()">
+        Supprimer les informations
+      </button>
+      <button onclick="passerEnPleinEcran()">Plein écran</button>
+      <button onclick="afficherRegles()">Règles du jeu</button>
+    </div>
+
+    <div id="trainingScreen" style="display: none">
+      <h1>Mode Entraînement</h1>
+      <button class="level-btn" onclick="demarrerTraining('facile')">
+        Facile
+      </button>
+      <button class="level-btn" onclick="demarrerTraining('moyen')">
+        Moyen
+      </button>
+      <button class="level-btn" onclick="demarrerTraining('difficile')">
+        Difficile
+      </button>
+      <button class="level-btn" onclick="demarrerTraining('expert')">
+        Expert
+      </button>
+      <button onclick="retourAuMenu()">Retour</button>
+    </div>
+
+    <div id="playerNameScreen" style="display: none">
+      <h1>Entrez votre pseudo</h1>
+      <input
+        type="text"
+        id="playerNameInput"
+        placeholder="Votre pseudo"
+        maxlength="15"
+      />
+      <button onclick="enregistrerPseudo()">Valider</button>
+      <button onclick="réinitialiserNom()">Réinitialiser</button>
+      <p id="nameError" style="color: red; display: none">
+        Le pseudo doit faire entre 3 et 15 caractères
+      </p>
+    </div>
+
+    <div id="modeSelectionScreen" style="display: none">
+      <h1>Choisissez votre mode</h1>
+      <button class="mode-btn" onclick="selectionnerMode('1v1')">1 vs 1</button>
+      <button class="mode-btn" onclick="selectionnerMode('2v2')">2 vs 2</button>
+      <button class="mode-btn" onclick="selectionnerMode('3v3')">3 vs 3</button>
+      <button class="mode-btn" onclick="selectionnerMode('4v4')">4 vs 4</button>
+      <button class="mode-btn" onclick="selectionnerMode('5v5')">5 vs 5</button>
+      <button onclick="retourAuMenu()">Retour</button>
+    </div>
+
+    <div id="loadingScreen" style="display: none">
+      <h1 id="loadingTitle">Connexion au serveur...</h1>
+      <div id="loadingBar">
+        <div id="loadingProgress"></div>
+      </div>
+      <div id="connectionInfo">
+        <p id="connectionStatus">Tentative de connexion...</p>
+        <p id="playersOnline">Joueurs en ligne: 0</p>
+      </div>
+      <div class="team-container">
+        <div class="team team1">
+          <h3>Équipe Bleue</h3>
+          <div id="team1Players"></div>
+        </div>
+        <div class="team team2">
+          <h3>Équipe Rouge</h3>
+          <div id="team2Players"></div>
+        </div>
+      </div>
+      <button onclick="annulerRecherche()">Annuler</button>
+    </div>
+
+    <div id="shopScreen" style="display: none">
+      <h1>Boutique</h1>
+      <div id="coinsDisplayShop">Pièces: 0</div>
+      <div class="shop-container" id="shopItems">
+        <!-- Les items seront générés dynamiquement -->
+      </div>
+      <button onclick="retourAuMenu()">Retour</button>
+    </div>
+
+    <div id="replaysScreen" style="display: none">
+      <h1>Replays Sauvegardés</h1>
+      <div id="replaysList">
+        <!-- Les replays seront affichés ici -->
+      </div>
+      <button onclick="retourAuMenu()">Retour</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <div id="gameInfo" style="display: none">
+      Mode: <span id="gameModeDisplay">1v1</span> | Équipe:
+      <span id="playerTeam" style="color: #007bff">Bleue</span>
+    </div>
+
+    <div id="coinsDisplay">Pièces: 0</div>
+
+    <div id="gameOverScreen" style="display: none">
+      <img
+        id="gameOverIcon"
+        src="https://img.freepik.com/photos-premium/avion-chasse-volant-dans-ciel_812426-98022.jpg"
+        alt="Game Over"
+      />
+      <h1 id="gameResultTitle">Résultat</h1>
+      <p id="gameResultText"></p>
+      <p id="coinsEarned">+0 pièces gagnées</p>
+      <button onclick="showReplay()">Voir le Replay</button>
+      <button onclick="recommencerJeu()">Rejouer</button>
+      <button onclick="retourAuMenu()">Menu principal</button>
+    </div>
+
+    <div id="serverStatus">
+      <div class="wifi-status">
+        <div id="wifiIcon" class="wifi-icon wifi-0"></div>
+        <span id="serverStatusText">Serveur: En cours de connexion...</span>
+      </div>
+    </div>
+
+    <div id="replayContainer">
+      <video id="replayVideo" controls></video>
+      <div class="replay-controls">
+        <button onclick="saveReplay()">Sauvegarder</button>
+        <button onclick="downloadReplay()">Télécharger</button>
+        <button onclick="hideReplay()">Fermer</button>
+      </div>
+    </div>
+
+    <div id="deviceWarning" style="display: none">
+      <h2>Mode Téléphone Détecté</h2>
+      <p>Utilisez les contrôles tactiles pour jouer</p>
+      <button onclick="closeDeviceWarning()">Compris</button>
+    </div>
+
+    <div id="stickersPanel" style="display: none">
+      <img
+        src="https://via.placeholder.com/50/ff0000/ffffff?text=♥"
+        alt="Sticker 1"
+        class="sticker"
+        onclick="useSticker('https://via.placeholder.com/50/ff0000/ffffff?text=♥')"
+      />
+      <img
+        src="https://via.placeholder.com/50/00ff00/000000?text=★"
+        alt="Sticker 2"
+        class="sticker"
+        onclick="useSticker('https://via.placeholder.com/50/00ff00/000000?text=★')"
+      />
+      <img
+        src="https://via.placeholder.com/50/0000ff/ffffff?text=☺"
+        alt="Sticker 3"
+        class="sticker"
+        onclick="useSticker('https://via.placeholder.com/50/0000ff/ffffff?text=☺')"
+      />
+      <img
+        src="https://via.placeholder.com/50/ffff00/000000?text=☠"
+        alt="Sticker 4"
+        class="sticker"
+        onclick="useSticker('https://via.placeholder.com/50/ffff00/000000?text=☠')"
+      />
+    </div>
+
+    <div class="mobile-controls">
+      <button class="control-btn" id="leftBtn">←</button>
+      <button class="control-btn" id="rightBtn">→</button>
+      <button class="control-btn" id="shootBtn">🔥</button>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+      // Variables globales
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const startScreen = document.getElementById('startScreen');
+      const rulesScreen = document.getElementById('rulesScreen');
+      const menu = document.getElementById('menu');
+      const trainingScreen = document.getElementById('trainingScreen');
+      const playerNameScreen = document.getElementById('playerNameScreen');
+      const modeSelectionScreen = document.getElementById(
+        'modeSelectionScreen'
+      );
+      const loadingScreen = document.getElementById('loadingScreen');
+      const gameOverScreen = document.getElementById('gameOverScreen');
+      const shopScreen = document.getElementById('shopScreen');
+      const playerNameInput = document.getElementById('playerNameInput');
+      const loadingProgress = document.getElementById('loadingProgress');
+      const loadingTitle = document.getElementById('loadingTitle');
+      const connectionInfo = document.getElementById('connectionInfo');
+      const connectionStatus = document.getElementById('connectionStatus');
+      const playersOnline = document.getElementById('playersOnline');
+      const serverStatus = document.getElementById('serverStatus');
+      const serverStatusText = document.getElementById('serverStatusText');
+      const wifiIcon = document.getElementById('wifiIcon');
+      const gameResultTitle = document.getElementById('gameResultTitle');
+      const gameResultText = document.getElementById('gameResultText');
+      const coinsEarned = document.getElementById('coinsEarned');
+      const team1Players = document.getElementById('team1Players');
+      const team2Players = document.getElementById('team2Players');
+      const gameInfo = document.getElementById('gameInfo');
+      const gameModeDisplay = document.getElementById('gameModeDisplay');
+      const playerTeam = document.getElementById('playerTeam');
+      const coinsDisplay = document.getElementById('coinsDisplay');
+      const coinsDisplayShop = document.getElementById('coinsDisplayShop');
+      const shopItems = document.getElementById('shopItems');
+      const modeSelectionDeviceScreen = document.getElementById(
+        'modeSelectionDeviceScreen'
+      );
+      const ageSelectionScreen = document.getElementById('ageSelectionScreen');
+      const ageSlider = document.getElementById('ageSlider');
+      const ageValue = document.getElementById('ageValue');
+      const replaysScreen = document.getElementById('replaysScreen');
+      const replaysList = document.getElementById('replaysList');
+      const stickersPanel = document.getElementById('stickersPanel');
+
+      // Variables pour le replay
+      let mediaRecorder;
+      let recordedChunks = [];
+      let isRecording = false;
+      let replays = JSON.parse(localStorage.getItem('replays')) || [];
+
+      // Paramètres du jeu
+      const gameParameters = {
+        difficulty: 'moyen',
+        lives: 100,
+        coins: 0,
+        // Ajoutez d'autres paramètres ici
+      };
+
+      // Configuration du jeu
+      let playerName = localStorage.getItem('playerName') || '';
+      let gameMode = '1v1';
+      let difficulty = gameParameters.difficulty;
+      let isTraining = false;
+      let isMultiplayer = false;
+      let serverConnected = false;
+      let playersOnlineCount = 0;
+      let loadingInterval;
+      let gameInterval;
+      let keys = {};
+      let missiles = [];
+      let avions = [];
+      let gameOver = false;
+      let playerTeamId = 1;
+      let teamSize = 1;
+      let useBots = false;
+      let coins =
+        parseInt(localStorage.getItem('coins')) || gameParameters.coins;
+      let socket = null;
+      let playerId = null;
+
+      // Variables pour les contrôles mobiles
+      let isMobile = false;
+      let leftPressed = false;
+      let rightPressed = false;
+
+      // Données de la boutique
+      const shopItemsData = [
+        {
+          id: 1,
+          name: 'Avion Rouge',
+          price: 100,
+          type: 'skin',
+          img: 'https://via.placeholder.com/64/ff0000/ffffff?text=Rouge',
+          color: 'red',
+        },
+        {
+          id: 2,
+          name: 'Avion Bleu',
+          price: 100,
+          type: 'skin',
+          img: 'https://via.placeholder.com/64/007bff/ffffff?text=Bleu',
+          color: 'blue',
+        },
+        {
+          id: 3,
+          name: 'Avion Vert',
+          price: 150,
+          type: 'skin',
+          img: 'https://via.placeholder.com/64/00ff00/000000?text=Vert',
+          color: 'green',
+        },
+        {
+          id: 4,
+          name: 'Avion Or',
+          price: 500,
+          type: 'skin',
+          img: 'https://via.placeholder.com/64/ffd700/000000?text=Or',
+          color: 'gold',
+        },
+        {
+          id: 5,
+          name: 'Double Tir',
+          price: 300,
+          type: 'powerup',
+          img: 'https://via.placeholder.com/64/ffff00/000000?text=x2',
+          effect: 'doubleShot',
+        },
+        {
+          id: 6,
+          name: 'Bouclier',
+          price: 400,
+          type: 'powerup',
+          img: 'https://via.placeholder.com/64/00ffff/000000?text=Shield',
+          effect: 'shield',
+        },
+      ];
+
+      // Inventaire du joueur
+      let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+      let equippedItems = JSON.parse(localStorage.getItem('equippedItems')) || {
+        skin: null,
+        powerup: null,
+      };
+
+      // Noms pour les bots
+      const BOT_NAMES = [
+        'Shadow',
+        'Phantom',
+        'Raven',
+        'Viper',
+        'Falcon',
+        'Storm',
+        'Blaze',
+        'Titan',
+      ];
+
+      // Initialisation
+      if (playerName) {
+        playerNameInput.value = playerName;
+      }
+      updateCoinsDisplay();
+      generateShopItems();
+      generateReplaysList();
+      checkReward();
+
+      // Connexion au serveur Socket.io
+      function connectToSocketServer() {
+        socket = io('http://localhost:3000', { autoConnect: false });
+
+        socket.on('connect', () => {
+          console.log('Connecté au serveur');
+          serverConnected = true;
+          wifiIcon.className = 'wifi-icon wifi-3';
+          serverStatusText.textContent = 'Serveur: En ligne (3/3)';
+          serverStatusText.style.color = '#0f0';
+
+          // Enregistrer le joueur
+          socket.emit('registerPlayer', { name: playerName, id: playerId });
+        });
+
+        socket.on('disconnect', () => {
+          console.log('Déconnecté du serveur');
+          serverConnected = false;
+          wifiIcon.className = 'wifi-icon wifi-0';
+          serverStatusText.textContent = 'Serveur: Hors ligne';
+          serverStatusText.style.color = '#f00';
+        });
+
+        socket.on('connectionQuality', (quality) => {
+          wifiIcon.className = `wifi-icon wifi-${quality}`;
+          serverStatusText.textContent = `Serveur: En ligne (${quality}/3)`;
+        });
+
+        socket.on('playersOnline', (count) => {
+          playersOnlineCount = count;
+          playersOnline.textContent = `Joueurs en ligne: ${count}`;
+        });
+
+        socket.on('matchFound', (data) => {
+          clearInterval(loadingInterval);
+          loadingProgress.style.width = '100%';
+          startOnlineGame(data);
+        });
+
+        socket.on('playerJoined', (player) => {
+          updatePlayerLists();
+        });
+
+        socket.on('playerLeft', (playerId) => {
+          updatePlayerLists();
+        });
+
+        socket.on('gameState', (gameState) => {
+          // Mettre à jour l'état du jeu en fonction des données du serveur
+          avions = gameState.avions;
+          missiles = gameState.missiles;
+        });
+
+        socket.on('gameOver', (result) => {
+          endGame(result.winningTeam);
+        });
+
+        socket.connect();
+      }
+
+      // Simuler un serveur de jeu
+      function simulateServer() {
+        // 80% de chance de se connecter au serveur
+        serverConnected = Math.random() < 0.8;
+
+        if (serverConnected) {
+          connectToSocketServer();
+
+          // Simuler une qualité de connexion aléatoire
+          const connectionQuality = Math.floor(Math.random() * 3) + 1; // 1-3
+          setTimeout(() => {
+            socket.emit('connectionQuality', connectionQuality);
+            socket.emit('playersOnline', Math.floor(Math.random() * 20) + 5);
+          }, 1000);
+        } else {
+          wifiIcon.className = 'wifi-icon wifi-0';
+          serverStatusText.textContent = 'Serveur: Hors ligne';
+          serverStatusText.style.color = '#f00';
+          playersOnlineCount = 0;
+        }
+      }
+
+      // Générer les items de la boutique
+      function generateShopItems() {
+        shopItems.innerHTML = '';
+        shopItemsData.forEach((item) => {
+          const isOwned = inventory.includes(item.id);
+          const isEquipped =
+            equippedItems.skin === item.id || equippedItems.powerup === item.id;
+
+          const itemElement = document.createElement('div');
+          itemElement.className = `shop-item ${isOwned ? 'owned' : ''} ${
+            isEquipped ? 'equipped' : ''
+          }`;
+          itemElement.innerHTML = `
+        <img src="${item.img}" alt="${item.name}">
+        <h3>${item.name}</h3>
+        <p>${item.price} pièces</p>
+        ${
+          isOwned
+            ? isEquipped
+              ? `<button onclick='unequipItem(${item.id})'>Déséquiper</button>`
+              : `<button onclick='equipItem(${item.id})'>Équiper</button>`
+            : `<button onclick='buyItem(${item.id})' ${
+                coins < item.price ? 'disabled' : ''
+              }>Acheter</button>`
+        }
+      `;
+          shopItems.appendChild(itemElement);
+        });
+      }
+
+      // Générer la liste des replays
+      function generateReplaysList() {
+        replaysList.innerHTML = '';
+        replays.forEach((replay, index) => {
+          const replayElement = document.createElement('div');
+          replayElement.className = 'replay-item';
+          replayElement.innerHTML = `
+        <h3>Replay ${index + 1}</h3>
+        <p>Date: ${replay.date}</p>
+        <p>Heure: ${replay.time}</p>
+        <button onclick="viewReplay(${index})">Voir</button>
+        <button onclick="deleteReplay(${index})">Supprimer</button>
+      `;
+          replaysList.appendChild(replayElement);
+        });
+      }
+
+      // Acheter un item
+      function buyItem(itemId) {
+        const item = shopItemsData.find((i) => i.id === itemId);
+        if (item && coins >= item.price) {
+          coins -= item.price;
+          inventory.push(itemId);
+          localStorage.setItem('coins', coins);
+          localStorage.setItem('inventory', JSON.stringify(inventory));
+          updateCoinsDisplay();
+          generateShopItems();
+          alert(`Félicitations ! Vous avez acheté ${item.name}`);
+        } else {
+          alert("Vous n'avez pas assez de pièces pour acheter cet item.");
+        }
+      }
+
+      // Équiper un item
+      function equipItem(itemId) {
+        const item = shopItemsData.find((i) => i.id === itemId);
+        if (item) {
+          equippedItems[item.type] = itemId;
+          localStorage.setItem('equippedItems', JSON.stringify(equippedItems));
+          generateShopItems();
+          alert(`Vous avez équipé ${item.name}`);
+        }
+      }
+
+      // Déséquiper un item
+      function unequipItem(itemId) {
+        const item = shopItemsData.find((i) => i.id === itemId);
+        if (item) {
+          equippedItems[item.type] = null;
+          localStorage.setItem('equippedItems', JSON.stringify(equippedItems));
+          generateShopItems();
+          alert(`Vous avez déséquipé ${item.name}`);
+        }
+      }
+
+      // Mettre à jour l'affichage des pièces
+      function updateCoinsDisplay() {
+        coinsDisplay.textContent = `Pièces: ${coins}`;
+        coinsDisplayShop.textContent = `Pièces: ${coins}`;
+      }
+
+      // Afficher la boutique
+      function afficherBoutique() {
+        menu.style.display = 'none';
+        shopScreen.style.display = 'flex';
+        updateCoinsDisplay();
+      }
+
+      // Afficher les replays sauvegardés
+      function afficherReplays() {
+        menu.style.display = 'none';
+        replaysScreen.style.display = 'flex';
+      }
+
+      // Voir un replay
+      function viewReplay(index) {
+        const replay = replays[index];
+        document.getElementById('replayVideo').src = replay.videoUrl;
+        document.getElementById('replayContainer').style.display = 'block';
+      }
+
+      // Sauvegarder un replay
+      function saveReplay() {
+        const videoUrl = document.getElementById('replayVideo').src;
+        const replay = {
+          videoUrl: videoUrl,
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+        };
+
+        replays.push(replay);
+        localStorage.setItem('replays', JSON.stringify(replays));
+        generateReplaysList();
+        alert('Replay sauvegardé !');
+      }
+
+      // Supprimer un replay
+      function deleteReplay(index) {
+        replays.splice(index, 1);
+        localStorage.setItem('replays', JSON.stringify(replays));
+        generateReplaysList();
+      }
+
+      // Supprimer toutes les informations
+      function supprimerInformations() {
+        localStorage.removeItem('replays');
+        replays = [];
+        generateReplaysList();
+        alert('Toutes les informations ont été supprimées.');
+      }
+
+      // Vérifier la récompense
+      function checkReward() {
+        const lastRewardTime = localStorage.getItem('lastRewardTime');
+        const now = new Date();
+        if (
+          !lastRewardTime ||
+          now - new Date(lastRewardTime) >= 2 * 60 * 60 * 1000
+        ) {
+          coins += 100;
+          localStorage.setItem('coins', coins);
+          localStorage.setItem('lastRewardTime', now);
+          updateCoinsDisplay();
+          alert('Félicitations ! Vous avez reçu 100 pièces en récompense.');
+        }
+      }
+
+      // Utiliser un sticker
+      function useSticker(stickerUrl) {
+        const sticker = new Image();
+        sticker.src = stickerUrl;
+        sticker.onload = function () {
+          ctx.drawImage(
+            sticker,
+            Math.random() * (canvas.width - 50),
+            Math.random() * (canvas.height - 50),
+            50,
+            50
+          );
+        };
+      }
+
+      // Afficher l'écran d'entraînement
+      function afficherTraining() {
+        menu.style.display = 'none';
+        trainingScreen.style.display = 'flex';
+      }
+
+      // Démarrer le mode entraînement
+      function demarrerTraining(level) {
+        difficulty = level;
+        isTraining = true;
+        isMultiplayer = false;
+        trainingScreen.style.display = 'none';
+        canvas.style.display = 'block';
+        gameInfo.style.display = 'block';
+        gameModeDisplay.textContent = 'Entraînement (' + difficulty + ')';
+        playerTeam.textContent = 'Solo';
+        playerTeam.style.color = '#fff';
+
+        // Initialiser le jeu
+        initGame();
+
+        // Démarrer la boucle de jeu
+        gameInterval = requestAnimationFrame(gameLoop);
+      }
+
+      // Démarrer le jeu en ligne
+      function jouerEnLigne() {
+        menu.style.display = 'none';
+
+        if (!playerName || playerName.length < 3) {
+          playerNameScreen.style.display = 'flex';
+        } else {
+          // Vérifier la connexion au serveur
+          checkServerConnection();
+        }
+      }
+
+      // Vérifier la connexion au serveur
+      function checkServerConnection() {
+        simulateServer();
+
+        if (!serverConnected) {
+          const useBot = confirm(
+            'Le serveur est hors ligne. Voulez-vous jouer contre un bot expert?'
+          );
+          if (useBot) {
+            demarrerTraining('expert');
+          } else {
+            retourAuMenu();
+          }
+          return;
+        }
+
+        modeSelectionScreen.style.display = 'flex';
+      }
+
+      // Enregistrer le pseudo du joueur
+      function enregistrerPseudo() {
+        const name = playerNameInput.value.trim();
+        if (name.length < 3 || name.length > 15) {
+          document.getElementById('nameError').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('nameError').style.display = 'none';
+        playerName = name;
+        localStorage.setItem('playerName', playerName);
+        playerNameScreen.style.display = 'none';
+        checkServerConnection();
+      }
+
+      // Réinitialiser le nom du joueur
+      function réinitialiserNom() {
+        playerNameInput.value = '';
+        localStorage.removeItem('playerName');
+        playerName = '';
+      }
+
+      // Sélectionner le mode de jeu
+      function selectionnerMode(mode) {
+        gameMode = mode;
+        teamSize = parseInt(mode[0]);
+        modeSelectionScreen.style.display = 'none';
+        connectToServer();
+      }
+
+      // Se connecter au serveur
+      function connectToServer() {
+        loadingScreen.style.display = 'flex';
+        loadingTitle.textContent = `Recherche ${gameMode}...`;
+        gameModeDisplay.textContent = gameMode;
+
+        // Réinitialiser les équipes
+        team1Players.innerHTML = '';
+        team2Players.innerHTML = '';
+
+        let progress = 0;
+        loadingInterval = setInterval(() => {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          loadingProgress.style.width = progress + '%';
+
+          // Mettre à jour le statut de connexion
+          if (progress < 30) {
+            connectionStatus.textContent = 'Connexion au serveur...';
+          } else if (progress < 70) {
+            connectionStatus.textContent = "Recherche d'adversaire...";
+
+            // Simuler la découverte de joueurs
+            if (progress > 40 && team1Players.children.length === 0) {
+              updatePlayerLists();
+            }
+          } else {
+            connectionStatus.textContent = 'Synchronisation...';
+          }
+
+          // Quand la connexion est complète
+          if (progress >= 100) {
+            clearInterval(loadingInterval);
+            // Simuler la création d'une partie
+            setTimeout(() => {
+              const matchData = {
+                team1: [{ id: 'player1', name: playerName, isBot: false }],
+                team2: [
+                  { id: 'player2', name: getRandomBotName(), isBot: true },
+                ],
+              };
+              startOnlineGame(matchData);
+            }, 500);
+          }
+        }, 300);
+      }
+
+      // Mettre à jour les listes de joueurs
+      function updatePlayerLists() {
+        // Le joueur est toujours dans l'équipe 1
+        team1Players.innerHTML = `<div class="player-item">${playerName} (Vous)</div>`;
+        playerTeamId = 1;
+        playerTeam.textContent = 'Bleue';
+        playerTeam.style.color = '#007bff';
+
+        // Ajouter des coéquipiers si nécessaire
+        for (let i = 1; i < teamSize; i++) {
+          team1Players.innerHTML += `<div class="player-item">${getRandomBotName()} (Bot)</div>`;
+        }
+
+        // Créer l'équipe adverse
+        for (let i = 0; i < teamSize; i++) {
+          team2Players.innerHTML += `<div class="player-item">${getRandomBotName()} (Bot)</div>`;
+        }
+      }
+
+      // Obtenir un nom aléatoire pour les bots
+      function getRandomBotName() {
+        return BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
+      }
+
+      // Démarrer le jeu en ligne
+      function startOnlineGame(matchData) {
+        loadingScreen.style.display = 'none';
+        canvas.style.display = 'block';
+        gameInfo.style.display = 'block';
+        stickersPanel.style.display = 'block';
+
+        isMultiplayer = true;
+        isTraining = false;
+
+        // Initialiser le jeu
+        initGame(matchData);
+
+        // Démarrer la boucle de jeu
+        gameInterval = requestAnimationFrame(gameLoop);
+      }
+
+      // Initialiser le jeu
+      function initGame(matchData) {
+        // Réinitialiser les variables de jeu
+        missiles = [];
+        avions = [];
+        gameOver = false;
+
+        // Démarrer l'enregistrement
+        startRecording();
+
+        // Positionner les avions selon le mode
+        if (isTraining) {
+          // Mode entraînement - 1v1 contre un bot
+          avions.push(createPlayerAvion(380, 500, true));
+          avions.push(createBotAvion(380, 100, difficulty));
+        } else {
+          // Mode multijoueur - positionner toutes les équipes
+          const spacing = canvas.width / (teamSize + 1);
+
+          // Équipe du joueur (bleue - en bas)
+          for (let i = 0; i < teamSize; i++) {
+            avions.push(
+              createPlayerAvion(
+                spacing * (i + 1) - 20,
+                500,
+                i === 0 // Le premier est le joueur local
+              )
+            );
+          }
+
+          // Équipe adverse (rouge - en haut)
+          for (let i = 0; i < teamSize; i++) {
+            avions.push(
+              createBotAvion(
+                spacing * (i + 1) - 20,
+                100,
+                'expert' // Les adversaires en ligne sont toujours experts
+              )
+            );
+          }
+        }
+
+        // Configurer les contrôles
+        setupControls();
+      }
+
+      // Créer un avion joueur
+      function createPlayerAvion(x, y, isLocalPlayer) {
+        // Appliquer le skin équipé
+        let color = 'blue'; // Par défaut
+        if (equippedItems.skin) {
+          const skin = shopItemsData.find(
+            (item) => item.id === equippedItems.skin
+          );
+          if (skin) color = skin.color;
+        }
+
+        return {
+          x: x,
+          y: y,
+          width: 40,
+          height: 40,
+          isPlayer: isLocalPlayer,
+          isLocal: isLocalPlayer,
+          lives: gameParameters.lives,
+          lastShot: 0,
+          team: 1,
+          name: isLocalPlayer ? playerName : 'Coéquipier',
+          color: color,
+          powerup: equippedItems.powerup,
+        };
+      }
+
+      // Créer un avion bot
+      function createBotAvion(x, y, difficulty) {
+        return {
+          x: x,
+          y: y,
+          width: 40,
+          height: 40,
+          isPlayer: false,
+          isLocal: false,
+          lives: gameParameters.lives,
+          lastShot: 0,
+          team: 2,
+          name: getRandomBotName(),
+          color: 'red',
+          difficulty: difficulty,
+          moveCounter: 0,
+          targetX: x,
+        };
+      }
+
+      // Boucle principale du jeu
+      function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Utiliser les variables pour les contrôles mobiles
+        if (isMobile) {
+          keys.ArrowLeft = leftPressed;
+          keys.ArrowRight = rightPressed;
+        }
+
+        // Dessiner les avions
+        avions.forEach((avion) => {
+          ctx.fillStyle = avion.color || (avion.team === 1 ? 'blue' : 'red');
+          ctx.fillRect(avion.x, avion.y, avion.width, avion.height);
+
+          // Dessiner la barre de vie
+          const healthWidth =
+            avion.width * (avion.lives / gameParameters.lives);
+          ctx.fillStyle = avion.team === 1 ? '#0f0' : '#f00';
+          ctx.fillRect(avion.x, avion.y - 15, healthWidth, 5);
+
+          // Afficher le nom
+          ctx.fillStyle = 'white';
+          ctx.font = '12px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(avion.name, avion.x + avion.width / 2, avion.y - 20);
+        });
+
+        // Dessiner les missiles
+        ctx.fillStyle = 'yellow';
+        missiles.forEach((missile) => {
+          ctx.fillRect(missile.x, missile.y, missile.width, missile.height);
+        });
+
+        // Mettre à jour les positions
+        updateGame();
+
+        // Vérifier les collisions
+        checkCollisions();
+
+        if (!gameOver) {
+          gameInterval = requestAnimationFrame(gameLoop);
+        }
+      }
+
+      // Mettre à jour l'état du jeu
+      function updateGame() {
+        const now = Date.now();
+
+        // Déplacement du joueur local
+        const localPlayer = avions.find((a) => a.isLocal);
+        if (localPlayer) {
+          if (keys.ArrowLeft && localPlayer.x > 0) {
+            localPlayer.x -= 5;
+          }
+          if (
+            keys.ArrowRight &&
+            localPlayer.x < canvas.width - localPlayer.width
+          ) {
+            localPlayer.x += 5;
+          }
+        }
+
+        // Déplacement des missiles
+        missiles.forEach((missile) => {
+          missile.x += Math.sin(missile.angle) * 2; // Légère courbure
+          if (missile.team === 1) {
+            missile.y -= missile.speed; // Équipe bleue tire vers le haut
+          } else {
+            missile.y += missile.speed; // Équipe rouge tire vers le bas
+          }
+        });
+
+        // IA des bots
+        avions.forEach((avion) => {
+          if (!avion.isPlayer && !avion.isLocal) {
+            updateBotAI(avion, now);
+          }
+        });
+
+        // Supprimer les missiles hors écran
+        missiles = missiles.filter(
+          (m) => m.y > -20 && m.y < canvas.height + 20
+        );
+      }
+
+      // IA des bots
+      function updateBotAI(bot, now) {
+        // Déplacement basé sur la difficulté
+        bot.moveCounter++;
+
+        // Changer de direction périodiquement
+        if (bot.moveCounter > 50 + Math.random() * 50) {
+          bot.moveCounter = 0;
+          bot.targetX = Math.random() * (canvas.width - bot.width);
+        }
+
+        // Se déplacer vers la cible
+        const dx = bot.targetX - bot.x;
+        bot.x += dx * 0.05 * getDifficultyMultiplier(bot.difficulty);
+
+        // Rester dans les limites
+        bot.x = Math.max(0, Math.min(canvas.width - bot.width, bot.x));
+
+        // Tir intelligent
+        if (
+          now - bot.lastShot >
+          1000 / getDifficultyMultiplier(bot.difficulty)
+        ) {
+          const target = findTargetForBot(bot);
+          if (target) {
+            shootAtTarget(bot, target);
+            bot.lastShot = now;
+          }
+        }
+      }
+
+      // Trouver une cible pour le bot
+      function findTargetForBot(bot) {
+        const enemies = avions.filter(
+          (a) => a.team !== bot.team && a.lives > 0
+        );
+        if (enemies.length === 0) return null;
+
+        // En mode difficile, vise le joueur avec le moins de vie
+        if (bot.difficulty === 'difficile' || bot.difficulty === 'expert') {
+          enemies.sort((a, b) => a.lives - b.lives);
+        }
+
+        return enemies[0];
+      }
+
+      // Tirer vers une cible
+      function shootAtTarget(shooter, target) {
+        // Calculer l'angle pour viser la cible
+        const dx =
+          target.x + target.width / 2 - (shooter.x + shooter.width / 2);
+        const dy =
+          target.y + target.height / 2 - (shooter.y + shooter.height / 2);
+        const angle = Math.atan2(dy, dx);
+
+        // Nombre de tirs basé sur la difficulté
+        const shotCount =
+          shooter.difficulty === 'expert'
+            ? 3
+            : shooter.difficulty === 'difficile'
+            ? 2
+            : 1;
+
+        for (let i = 0; i < shotCount; i++) {
+          const spread = (Math.random() - 0.5) * 0.2;
+          missiles.push({
+            x: shooter.x + shooter.width / 2 - 2,
+            y: shooter.team === 1 ? shooter.y : shooter.y + shooter.height,
+            width: 4,
+            height: 10,
+            speed:
+              5 + Math.random() * getDifficultyMultiplier(shooter.difficulty),
+            angle: angle + spread,
+            team: shooter.team,
+          });
+        }
+      }
+
+      // Multiplicateur de difficulté
+      function getDifficultyMultiplier(difficulty) {
+        switch (difficulty) {
+          case 'facile':
+            return 0.7;
+          case 'moyen':
+            return 1.0;
+          case 'difficile':
+            return 1.3;
+          case 'expert':
+            return 1.7;
+          default:
+            return 1.0;
+        }
+      }
+
+      // Vérifier les collisions
+      function checkCollisions() {
+        // Vérifier les collisions missiles/avions
+        missiles.forEach((missile, mIndex) => {
+          avions.forEach((avion, aIndex) => {
+            if (avion.team !== missile.team && checkCollision(missile, avion)) {
+              missiles.splice(mIndex, 1);
+              avion.lives -= 10;
+
+              if (avion.lives <= 0) {
+                avions.splice(aIndex, 1);
+              }
+
+              // Vérifier si la partie est terminée
+              checkGameEnd();
+            }
+          });
+        });
+      }
+
+      // Vérifier si la partie est terminée
+      function checkGameEnd() {
+        const team1Alive = avions.filter(
+          (a) => a.team === 1 && a.lives > 0
+        ).length;
+        const team2Alive = avions.filter(
+          (a) => a.team === 2 && a.lives > 0
+        ).length;
+
+        if (team1Alive === 0 || team2Alive === 0) {
+          gameOver = true;
+          endGame(team1Alive > 0 ? 1 : 2);
+        }
+      }
+
+      // Fin de partie
+      function endGame(winningTeam) {
+        stopRecording();
+        gameOverScreen.style.display = 'flex';
+        canvas.style.display = 'none';
+        gameInfo.style.display = 'none';
+        stickersPanel.style.display = 'none';
+
+        const isPlayerWinner = winningTeam === playerTeamId;
+        const coinsWon = isPlayerWinner ? 50 : 10;
+        coins += coinsWon;
+        localStorage.setItem('coins', coins);
+        coinsEarned.textContent = `+${coinsWon} pièces gagnées`;
+        updateCoinsDisplay();
+
+        if (isTraining) {
+          if (isPlayerWinner) {
+            gameResultTitle.textContent = 'VICTOIRE !';
+            gameResultText.textContent = `Vous avez battu le bot ${difficulty}!`;
+          } else {
+            gameResultTitle.textContent = 'DÉFAITE...';
+            gameResultText.textContent = `Le bot ${difficulty} vous a battu. Essayez encore!`;
+          }
+        } else {
+          if (isPlayerWinner) {
+            gameResultTitle.textContent = 'VICTOIRE !';
+            gameResultText.textContent = `Votre équipe a gagné!`;
+          } else {
+            gameResultTitle.textContent = 'DÉFAITE...';
+            gameResultText.textContent = "L'équipe adverse a gagné.";
+          }
+        }
+      }
+
+      // Vérifier la collision entre deux objets
+      function checkCollision(obj1, obj2) {
+        return (
+          obj1.x < obj2.x + obj2.width &&
+          obj1.x + obj1.width > obj2.x &&
+          obj1.y < obj2.y + obj2.height &&
+          obj1.y + obj1.height > obj2.y
+        );
+      }
+
+      // Tirer un missile
+      function tirerMissile() {
+        const localPlayer = avions.find((a) => a.isLocal);
+        if (localPlayer && localPlayer.lives > 0) {
+          const shotCount = localPlayer.powerup === 5 ? 2 : 1; // Double tir si powerup équipé
+
+          for (let i = 0; i < shotCount; i++) {
+            const offset = i === 0 ? -5 : 5;
+            missiles.push({
+              x: localPlayer.x + localPlayer.width / 2 - 2 + offset,
+              y: localPlayer.y - 10,
+              width: 4,
+              height: 10,
+              speed: 8,
+              angle: 0,
+              team: localPlayer.team,
+            });
+          }
+        }
+      }
+
+      // Gestion des touches
+      document.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+
+        if (e.key === ' ' && !gameOver) {
+          tirerMissile();
+        }
+
+        // M pour ouvrir le menu en jeu
+        if (e.key.toLowerCase() === 'm' && !gameOver) {
+          pauseGame();
+        }
+      });
+
+      document.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+      });
+
+      // Mettre le jeu en pause
+      function pauseGame() {
+        if (gameInterval) {
+          cancelAnimationFrame(gameInterval);
+          gameInterval = null;
+          alert('Jeu en pause. Appuyez sur OK pour continuer.');
+          if (!gameOver) {
+            gameInterval = requestAnimationFrame(gameLoop);
+          }
+        }
+      }
+
+      // Fonctions utilitaires
+      function annulerRecherche() {
+        clearInterval(loadingInterval);
+        loadingScreen.style.display = 'none';
+        modeSelectionScreen.style.display = 'flex';
+      }
+
+      function retourAuMenu() {
+        if (gameInterval) cancelAnimationFrame(gameInterval);
+        menu.style.display = 'flex';
+        gameOverScreen.style.display = 'none';
+        loadingScreen.style.display = 'none';
+        modeSelectionScreen.style.display = 'none';
+        playerNameScreen.style.display = 'none';
+        trainingScreen.style.display = 'none';
+        shopScreen.style.display = 'none';
+        replaysScreen.style.display = 'none';
+        canvas.style.display = 'none';
+        gameInfo.style.display = 'none';
+        stickersPanel.style.display = 'none';
+        gameOver = false;
+      }
+
+      function recommencerJeu() {
+        gameOverScreen.style.display = 'none';
+        if (isTraining) {
+          demarrerTraining(difficulty);
+        } else {
+          startOnlineGame();
+        }
+      }
+
+      function passerEnPleinEcran() {
+        if (canvas.requestFullscreen) {
+          canvas.requestFullscreen();
+        } else if (canvas.webkitRequestFullscreen) {
+          canvas.webkitRequestFullscreen();
+        }
+      }
+
+      function afficherRegles() {
+        rulesScreen.style.display = 'flex';
+        menu.style.display = 'none';
+      }
+
+      function commencer() {
+        startScreen.style.display = 'none';
+        modeSelectionDeviceScreen.style.display = 'flex'; // Afficher l'écran de sélection du mode
+      }
+
+      function choisirModeOrdinateur() {
+        isMobile = false;
+        modeSelectionDeviceScreen.style.display = 'none';
+        ageSelectionScreen.style.display = 'flex'; // Afficher l'écran de sélection d'âge
+      }
+
+      function choisirModeTelephone() {
+        isMobile = true;
+        modeSelectionDeviceScreen.style.display = 'none';
+        ageSelectionScreen.style.display = 'flex'; // Afficher l'écran de sélection d'âge
+      }
+
+      function validerAge() {
+        const age = document.getElementById('ageSlider').value;
+        document.getElementById('ageValue').textContent = age;
+        ageSelectionScreen.style.display = 'none';
+        rulesScreen.style.display = 'flex';
+      }
+
+      function compris() {
+        rulesScreen.style.display = 'none';
+        menu.style.display = 'flex';
+      }
+
+      // Fonctions pour le système de replay
+      function startRecording() {
+        recordedChunks = [];
+        const canvasStream = canvas.captureStream(30);
+
+        mediaRecorder = new MediaRecorder(canvasStream, {
+          mimeType: 'video/webm; codecs=vp9',
+          videoBitsPerSecond: 2500000,
+        });
+
+        mediaRecorder.ondataavailable = function (e) {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = function () {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const videoUrl = URL.createObjectURL(blob);
+          document.getElementById('replayVideo').src = videoUrl;
+        };
+
+        mediaRecorder.start(1000); // Enregistrer par tranches de 1 seconde
+        isRecording = true;
+      }
+
+      function stopRecording() {
+        if (isRecording) {
+          mediaRecorder.stop();
+          isRecording = false;
+        }
+      }
+
+      function showReplay() {
+        document.getElementById('replayContainer').style.display = 'block';
+        document.getElementById('gameOverScreen').style.display = 'none';
+        document.getElementById('replayVideo').play();
+      }
+
+      function hideReplay() {
+        document.getElementById('replayContainer').style.display = 'none';
+        document.getElementById('gameOverScreen').style.display = 'flex';
+        document.getElementById('replayVideo').pause();
+      }
+
+      function downloadReplay() {
+        const a = document.createElement('a');
+        a.href = document.getElementById('replayVideo').src;
+        a.download = `replay_${new Date().toISOString()}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      // Fonctions pour les contrôles mobiles
+      function setupControls() {
+        if (isMobile) {
+          setupMobileControls();
+          showDeviceWarning();
+        } else {
+          setupDesktopControls();
+        }
+      }
+
+      function showDeviceWarning() {
+        document.getElementById('deviceWarning').style.display = 'block';
+      }
+
+      function closeDeviceWarning() {
+        document.getElementById('deviceWarning').style.display = 'none';
+      }
+
+      function setupMobileControls() {
+        document.querySelector('.mobile-controls').style.display = 'flex';
+
+        // Gestion des contrôles tactiles
+        document
+          .getElementById('leftBtn')
+          .addEventListener('touchstart', function (e) {
+            e.preventDefault(); // Empêche le comportement par défaut du navigateur
+            leftPressed = true;
+          });
+        document
+          .getElementById('leftBtn')
+          .addEventListener('touchend', function (e) {
+            e.preventDefault(); // Empêche le comportement par défaut du navigateur
+            leftPressed = false;
+          });
+
+        document
+          .getElementById('rightBtn')
+          .addEventListener('touchstart', function (e) {
+            e.preventDefault(); // Empêche le comportement par défaut du navigateur
+            rightPressed = true;
+          });
+        document
+          .getElementById('rightBtn')
+          .addEventListener('touchend', function (e) {
+            e.preventDefault(); // Empêche le comportement par défaut du navigateur
+            rightPressed = false;
+          });
+
+        document
+          .getElementById('shootBtn')
+          .addEventListener('touchstart', function (e) {
+            e.preventDefault(); // Empêche le comportement par défaut du navigateur
+            tirerMissile();
+          });
+
+        // Redimensionnement pour mobile
+        canvas.width = Math.min(window.innerWidth * 0.9, 800);
+        canvas.height = Math.min(window.innerHeight * 0.6, 600);
+      }
+
+      function setupDesktopControls() {
+        // Gestion des contrôles clavier existante
+        document.addEventListener('keydown', (e) => {
+          keys[e.key] = true;
+          if (e.key === ' ' && !gameOver) tirerMissile();
+          if (e.key.toLowerCase() === 'm' && !gameOver) pauseGame();
+        });
+
+        document.addEventListener('keyup', (e) => {
+          keys[e.key] = false;
+        });
+      }
+
+      // Mettre à jour la valeur de l'âge en temps réel
+      ageSlider.addEventListener('input', function () {
+        document.getElementById('ageValue').textContent = this.value;
+      });
+    </script>
+  </body>
+</html>
