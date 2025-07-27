@@ -563,9 +563,8 @@
 
     <div id="gameOverScreen" style="display: none">
       <img
-        id="gameOverIcon"
         src="https://img.freepik.com/photos-premium/avion-chasse-volant-dans-ciel_812426-98022.jpg"
-        alt="Game Over"
+
       />
       <h1 id="gameResultTitle">Résultat</h1>
       <p id="gameResultText"></p>
@@ -1934,6 +1933,65 @@ if (checkCollision(missile, enemy)) {
     missiles.splice(mIndex, 1);
     enemies.splice(eIndex, 1);
     playSound('explosion.mp3'); // Assurez-vous d'avoir un fichier son correspondant
+}
+// Définir un sprite avec plusieurs images
+const spriteImages = [
+    'image1.png', 'image2.png', 'image3.png' // Remplacez par les URLs de vos images
+];
+let currentSpriteIndex = 0;
+
+// Fonction pour dessiner le sprite actuel
+function drawSprite(x, y, width, height) {
+    const sprite = new Image();
+    sprite.src = spriteImages[currentSpriteIndex];
+    ctx.drawImage(sprite, x, y, width, height);
+
+    // Passer à l'image suivante
+    currentSpriteIndex = (currentSpriteIndex + 1) % spriteImages.length;
+}
+
+// Dans votre boucle de jeu, appelez drawSprite pour animer le sprite
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSprite(player.x, player.y, player.width, player.height);
+    // Autres mises à jour et dessins...
+    requestAnimationFrame(gameLoop);
+}
+// Définir les niveaux
+const levels = [
+    { difficulty: 'facile', enemies: 5 },
+    { difficulty: 'moyen', enemies: 10 },
+    { difficulty: 'difficile', enemies: 15 }
+];
+
+let currentLevel = 0;
+
+// Fonction pour charger un niveau
+function loadLevel(levelIndex) {
+    currentLevel = levelIndex;
+    const level = levels[levelIndex];
+    // Configurer le jeu en fonction du niveau
+    difficulty = level.difficulty;
+    // Initialiser les ennemis ou d'autres paramètres spécifiques au niveau
+    initGame();
+}
+
+// Fonction pour passer au niveau suivant
+function nextLevel() {
+    if (currentLevel < levels.length - 1) {
+        loadLevel(currentLevel + 1);
+    } else {
+        alert('Félicitations ! Vous avez terminé tous les niveaux.');
+    }
+}
+
+// Exemple d'utilisation pour passer au niveau suivant lorsque le joueur gagne
+function endGame(winningTeam) {
+    if (winningTeam === playerTeamId) {
+        nextLevel();
+    } else {
+        // Logique pour la défaite
+    }
 }
 
 
