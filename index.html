@@ -1825,6 +1825,118 @@
       ageSlider.addEventListener('input', function () {
         document.getElementById('ageValue').textContent = this.value;
       });
+      // Définir les types de power-ups
+const powerUps = [
+    { type: 'shield', duration: 5000, active: false },
+    { type: 'tripleShot', duration: 5000, active: false }
+];
+
+// Fonction pour générer un power-up aléatoire
+function generatePowerUp() {
+    const types = ['shield', 'tripleShot'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    return {
+        x: Math.random() * (canvas.width - 20),
+        y: 0,
+        width: 20,
+        height: 20,
+        type: type
+    };
+}
+
+// Fonction pour activer un power-up
+function activatePowerUp(powerUp) {
+    const pu = powerUps.find(p => p.type === powerUp.type);
+    if (pu) {
+        pu.active = true;
+        setTimeout(() => {
+            pu.active = false;
+        }, pu.duration);
+    }
+}
+
+// Dans la boucle de jeu, vérifiez les collisions avec les power-ups
+function checkPowerUpCollisions() {
+    powerUps.forEach((powerUp, index) => {
+        if (checkCollision(player, powerUp)) {
+            activatePowerUp(powerUp);
+            powerUps.splice(index, 1);
+        }
+    });
+}
+let score = 0;
+
+// Fonction pour augmenter le score
+function increaseScore(points) {
+    score += points;
+    document.getElementById('score').textContent = score;
+}
+
+// Dans la fonction de vérification des collisions, appelez increaseScore lorsque le joueur détruit un ennemi
+if (checkCollision(missile, enemy)) {
+    missiles.splice(mIndex, 1);
+    enemies.splice(eIndex, 1);
+    increaseScore(10);
+}
+let lives = 3;
+
+// Fonction pour diminuer la vie du joueur
+function decreaseLives() {
+    lives--;
+    if (lives <= 0) {
+        gameOver();
+    }
+}
+
+// Dans la fonction de vérification des collisions, appelez decreaseLives lorsque le joueur est touché par un ennemi
+if (checkCollision(player, enemy)) {
+    decreaseLives();
+    enemies.splice(eIndex, 1);
+}
+function shootMissile() {
+    const missileCount = powerUps.find(p => p.type === 'tripleShot')?.active ? 3 : 1;
+    const missileWidth = 4;
+    const missileHeight = 10;
+    const missileSpeed = 8;
+
+    for (let i = 0; i < missileCount; i++) {
+        const offset = (i - 1) * 10; // Espacement des missiles
+        missiles.push({
+            x: player.x + player.width / 2 - missileWidth / 2 + offset,
+            y: player.y - missileHeight,
+            width: missileWidth,
+            height: missileHeight,
+            speed: missileSpeed
+        });
+    }
+}
+// Créer un contexte audio
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Charger un son
+function loadSound(url) {
+    return fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
+}
+
+// Jouer un son
+async function playSound(url) {
+    const soundBuffer = await loadSound(url);
+    const soundSource = audioContext.createBufferSource();
+    soundSource.buffer = soundBuffer;
+    soundSource.connect(audioContext.destination);
+    soundSource.start();
+}
+
+// Exemple d'utilisation pour jouer un son lors d'une collision
+if (checkCollision(missile, enemy)) {
+    missiles.splice(mIndex, 1);
+    enemies.splice(eIndex, 1);
+    playSound('explosion.mp3'); // Assurez-vous d'avoir un fichier son correspondant
+}
+
+
     </script>
   </body>
 </html>
